@@ -31,10 +31,10 @@ def get_all_datasource_configs() -> list[DataSourceConfig]:
             {
                 # TODO fix when langchain GitBook issue is fixed
                 # See https://github.com/langchain-ai/langchain/issues/30473
-                "web_page": "https://help.siestaextranet.com/obecne/untitled",
-                "load_all_paths" :False, 
-                # "web_page": "https://docs.gitbook.com/",
-                # "load_all_paths" :True, 
+                # "web_page": "https://help.siestaextranet.com/obecne/untitled",
+                # "load_all_paths" :False, 
+                "web_page": "https://help.siestaextranet.com/",
+                "load_all_paths" :True, 
             }
         )
     ]
