@@ -6,10 +6,18 @@ import json
 from dotenv import load_dotenv
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
+from azure.search.documents.indexes.models import (
+    ScoringProfile,
+    SearchableField,
+    SearchField,
+    SearchFieldDataType,
+    SimpleField,
+    TextWeights,
+)
 from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.indexes import SQLRecordManager, index
-from langchain_community.vectorstores.azuresearch import AzureSearch
+from langchain_community.vectorstores.azuresearch import AzureSearch 
 from langchain_core.documents import Document
 
 from siesta_ai.key_vault_client import KeyVaultClient
@@ -59,7 +67,37 @@ def load_all():
         azure_search_endpoint=SEARCH_ENDPOINT,
         azure_search_key=kv.get_app_setting("SearchServiceApiKey"),
         index_name=SEARCH_INDEX_NAME,
-        embedding_function=embeddings
+        embedding_function=embeddings,
+        fields = [
+            SimpleField(
+                name="id",
+                type=SearchFieldDataType.String,
+                key=True,
+                filterable=True,
+            ),
+            SearchableField(
+                name="content",
+                type=SearchFieldDataType.String,
+                searchable=True,
+            ),
+            SearchField(
+                name="content_vector",
+                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                searchable=True,
+                vector_search_dimensions=1536,
+                vector_search_profile_name="myHnswProfile",
+            ),
+            SearchableField(
+                name="metadata",
+                type=SearchFieldDataType.String,
+                searchable=True,
+            ),
+            SimpleField(
+                name="data_source_id",
+                type=SearchFieldDataType.String,
+                filterable=True,
+            ),
+        ]
     )
 
     all_docs = []
@@ -78,6 +116,9 @@ def load_all():
             logging.info(f"Splitting {len(docs)} docs")
             docs = split_docs(docs)
             logging.info(f"Split into {len(docs)} chunks")
+
+            for doc in docs:
+                doc.metadata["data_source_id"] = config.name
 
             all_docs.extend(docs)
         except Exception as e:
