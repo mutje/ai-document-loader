@@ -1,5 +1,10 @@
 import logging
-from langchain_community.document_loaders import PyPDFLoader, ConfluenceLoader, GitbookLoader
+from langchain_community.document_loaders import (
+    PyPDFLoader,
+    ConfluenceLoader,
+    GitbookLoader,
+    RecursiveUrlLoader,
+)
 from siesta_ai.data_source_types import DataSourceType
 from siesta_ai.data_source_config import DataSourceConfig
 
@@ -7,7 +12,8 @@ from siesta_ai.data_source_config import DataSourceConfig
 LOADER_MAPPING = {
     DataSourceType.PDF: PyPDFLoader, 
     DataSourceType.CONFLUENCE: ConfluenceLoader,
-    DataSourceType.GITBOOK: GitbookLoader
+    DataSourceType.GITBOOK: GitbookLoader,
+    DataSourceType.RECURSIVE_URL: RecursiveUrlLoader,
 }
 
 def parse_data_source(config: DataSourceConfig):

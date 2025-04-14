@@ -4,3 +4,4 @@ class DataSourceType(StrEnum):
     PDF = "pdf"
     CONFLUENCE = "confluence"
     GITBOOK = "gitbook"
+    RECURSIVE_URL = "recursive_url"

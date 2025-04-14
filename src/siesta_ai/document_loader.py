@@ -21,16 +21,15 @@ from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_core.documents import Document
 
 from siesta_ai.key_vault_client import KeyVaultClient
-from siesta_ai.data_source_config import get_all_datasource_configs
+from siesta_ai.get_all_datasource_configs_inline import get_all_datasource_configs
 from siesta_ai.parsing_handlers import parse_data_source
+from siesta_ai.retriever_backend_loader import get_retriever_backend, get_record_manager
 
 
 AZURE_STORAGE_ACCOUNT_NAME = "stbaiaiadev"
 CONTAINER_NAME = "siesta-ai-experimental-container"
 SQLITE_BLOB_NAME = "langchain_record_manager.db"
 LOCAL_SQLITE_PATH = "/tmp/langchain_record_manager.db"  # Used inside Azure Function
-SEARCH_ENDPOINT = "https://cs-baiaia-dev.search.windows.net"
-SEARCH_INDEX_NAME = "csindex-siesta-ai-experimental"
 
 def split_docs(docs):
     splitter = RecursiveCharacterTextSplitter(
@@ -63,42 +62,45 @@ def load_all():
     record_manager = SQLRecordManager(db_url=f"sqlite:///{LOCAL_SQLITE_PATH}", namespace="siesta-ai-index")
     record_manager.create_schema()
 
-    vectorstore = AzureSearch(
-        azure_search_endpoint=SEARCH_ENDPOINT,
-        azure_search_key=kv.get_app_setting("SearchServiceApiKey"),
-        index_name=SEARCH_INDEX_NAME,
-        embedding_function=embeddings,
-        fields = [
-            SimpleField(
-                name="id",
-                type=SearchFieldDataType.String,
-                key=True,
-                filterable=True,
-            ),
-            SearchableField(
-                name="content",
-                type=SearchFieldDataType.String,
-                searchable=True,
-            ),
-            SearchField(
-                name="content_vector",
-                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                searchable=True,
-                vector_search_dimensions=1536,
-                vector_search_profile_name="myHnswProfile",
-            ),
-            SearchableField(
-                name="metadata",
-                type=SearchFieldDataType.String,
-                searchable=True,
-            ),
-            SimpleField(
-                name="data_source_id",
-                type=SearchFieldDataType.String,
-                filterable=True,
-            ),
-        ]
-    )
+    # retriever_backend = AzureSearch(
+    #     azure_search_endpoint=SEARCH_ENDPOINT,
+    #     azure_search_key=kv.get_app_setting("SearchServiceApiKey"),
+    #     index_name=SEARCH_INDEX_NAME,
+    #     embedding_function=embeddings,
+    #     fields = [
+    #         SimpleField(
+    #             name="id",
+    #             type=SearchFieldDataType.String,
+    #             key=True,
+    #             filterable=True,
+    #         ),
+    #         SearchableField(
+    #             name="content",
+    #             type=SearchFieldDataType.String,
+    #             searchable=True,
+    #         ),
+    #         SearchField(
+    #             name="content_vector",
+    #             type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+    #             searchable=True,
+    #             vector_search_dimensions=1536,
+    #             vector_search_profile_name="myHnswProfile",
+    #         ),
+    #         SearchableField(
+    #             name="metadata",
+    #             type=SearchFieldDataType.String,
+    #             searchable=True,
+    #         ),
+    #         SimpleField(
+    #             name="data_source_id",
+    #             type=SearchFieldDataType.String,
+    #             filterable=True,
+    #         ),
+    #     ]
+    # )
+
+    retriever_backend = get_retriever_backend(embeddings)
+    return # TODO remove
 
     all_docs = []
 
@@ -127,18 +129,18 @@ def load_all():
     # LangChain indexing
     logging.info("Starting LangChain indexing...")
 
-    ir = index(
-        all_docs,
-        record_manager,
-        vectorstore,
-        cleanup="full",
-        source_id_key="source")
+    # ir = index(
+    #     all_docs,
+    #     record_manager,
+    #     retriever_backend,
+    #     cleanup="full",
+    #     source_id_key="source")
     logging.info(f"Indexed {len(all_docs)} documents.")
-    logging.info(ir)
+    # logging.info(ir)
 
     # Upload SQLite DB back to Blob
-    with open(LOCAL_SQLITE_PATH, "rb") as data:
-        blob_client.upload_blob(data, overwrite=True)
+    # with open(LOCAL_SQLITE_PATH, "rb") as data:
+    #     blob_client.upload_blob(data, overwrite=True)
     logging.info("Uploaded updated SQLite DB to blob.")
 
 
