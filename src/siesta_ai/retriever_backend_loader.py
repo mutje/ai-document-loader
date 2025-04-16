@@ -2,6 +2,8 @@ import json
 import re
 from siesta_ai.key_vault_client import KeyVaultClient
 from langchain_community.vectorstores.azuresearch import AzureSearch
+from langchain_sqlserver import SQLServer_VectorStore
+
 from azure.search.documents.indexes.models import (
     ScoringProfile,
     SearchableField,
@@ -32,7 +34,7 @@ def load_retriever_config() -> dict:
 
     # Hardcoded now, experimenting
     config = {
-        "default": "azure_search",
+        "default": "azure_sql",
         "backends": {
             "azure_search": {
                 "type": "azure_search",
@@ -44,8 +46,7 @@ def load_retriever_config() -> dict:
                 "type": "azure_sql",
                 "connection_string": "{{AzureSqlConnectionString}}",
                 "table_name": "documents",
-                "embedding_column": "embedding",
-                "content_column": "content"
+                "embedding_length": 1536
             }
         }
     }
@@ -95,6 +96,14 @@ def get_retriever_backend(embedding_function) -> AzureSearch:
                     filterable=True,
                 ),
             ]
+        )
+
+    elif config["type"] == "azure_sql":
+        return SQLServer_VectorStore(
+            connection_string=config["connection_string"],
+            table_name=config["table_name"],
+            embedding_function=embedding_function,
+            embedding_length=config["embedding_length"]
         )
 
     raise ValueError(f"Unsupported retriever type: {config['type']}")
