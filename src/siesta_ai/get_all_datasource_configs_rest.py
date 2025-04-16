@@ -2,20 +2,10 @@ import os
 import requests
 from siesta_ai.data_source_config import DataSourceConfig
 from siesta_ai.data_source_types import DataSourceType
+from siesta_ai.api_config_loader import load_config_from_api
 
 def get_all_datasource_configs() -> list[DataSourceConfig]:
-    CONFIG_API_BASE = os.getenv("CONFIG_API_BASE")
-
-    if not CONFIG_API_BASE:
-        raise ValueError("CONFIG_API_BASE environment variable is not set.")
-
-    try:
-        response = requests.get(f"{CONFIG_API_BASE}/data_source")
-        response.raise_for_status()
-        configs = response.json()
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to fetch data source configs: {e}")
-
+    configs = load_config_from_api("data_source")
     return [
         DataSourceConfig(
             config["name"],
