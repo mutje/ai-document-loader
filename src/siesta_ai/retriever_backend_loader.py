@@ -34,7 +34,7 @@ def load_retriever_config() -> dict:
 
     # Hardcoded now, experimenting
     config = {
-        "default": "azure_sql",
+        "default": "azure_search",
         "backends": {
             "azure_search": {
                 "type": "azure_search",
