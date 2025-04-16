@@ -23,11 +23,12 @@ def get_all_datasource_configs() -> list[DataSourceConfig]:
                 "content_selector": "html"
             }
         ),
-        # DataSourceConfig(
-        #     "ABP_DOCS",
-        #     DataSourceType.RECURSIVE_URL, 
-        #     {
-        #         "url": "https://abp.io/docs/latest/"
-        #     }
-        # ),
+        DataSourceConfig(
+            "ABP_DOCS",
+            DataSourceType.ABP_DOCS, 
+            {
+                "nav_url": "https://raw.githubusercontent.com/abpframework/abp/dev/docs/en/docs-nav.json",
+                "base_url": "https://raw.githubusercontent.com/abpframework/abp/dev/docs/en"
+            }
+        ),
     ]

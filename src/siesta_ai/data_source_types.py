@@ -5,3 +5,4 @@ class DataSourceType(StrEnum):
     CONFLUENCE = "confluence"
     GITBOOK = "gitbook"
     RECURSIVE_URL = "recursive_url"
+    ABP_DOCS = "abp_docs"

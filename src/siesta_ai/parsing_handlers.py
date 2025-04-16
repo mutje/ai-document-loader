@@ -5,6 +5,7 @@ from langchain_community.document_loaders import (
     GitbookLoader,
     RecursiveUrlLoader,
 )
+from siesta_ai.abp_docs_loader import AbpDocsLoader
 from siesta_ai.data_source_types import DataSourceType
 from siesta_ai.data_source_config import DataSourceConfig
 
@@ -14,6 +15,7 @@ LOADER_MAPPING = {
     DataSourceType.CONFLUENCE: ConfluenceLoader,
     DataSourceType.GITBOOK: GitbookLoader,
     DataSourceType.RECURSIVE_URL: RecursiveUrlLoader,
+    DataSourceType.ABP_DOCS: AbpDocsLoader,
 }
 
 def parse_data_source(config: DataSourceConfig):
