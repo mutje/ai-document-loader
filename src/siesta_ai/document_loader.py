@@ -13,7 +13,7 @@ from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_core.documents import Document
 
 from siesta_ai.key_vault_client import KeyVaultClient
-from siesta_ai.get_all_datasource_configs_inline import get_all_datasource_configs
+from siesta_ai.get_all_datasource_configs_rest import get_all_datasource_configs
 from siesta_ai.parsing_handlers import parse_data_source
 from siesta_ai.retriever_backend_loader import get_retriever_backend
 
@@ -113,6 +113,6 @@ def load_all():
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv("siesta_ai/.env")
     logging.basicConfig(level=logging.INFO)
     load_all()
