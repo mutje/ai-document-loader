@@ -3,6 +3,7 @@ import re
 from siesta_ai.key_vault_client import KeyVaultClient
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_sqlserver import SQLServer_VectorStore
+from siesta_ai.api_config_loader import load_config_from_api
 
 from azure.search.documents.indexes.models import (
     ScoringProfile,
@@ -27,35 +28,11 @@ def resolve_placeholders(obj: str|list|dict, secret_client: KeyVaultClient):
             return secret_client.get_app_setting(key)
     return obj
 
-
 def load_retriever_config() -> dict:
-    # with open(path) as f:
-    #     config = json.load(f)
-
-    # Hardcoded now, experimenting
-    config = {
-        "default": "azure_search",
-        "backends": {
-            "azure_search": {
-                "type": "azure_search",
-                "endpoint": "https://cs-baiaia-dev.search.windows.net",
-                "index_name": "csindex-siesta-ai-experimental",
-                "api_key": "{{SearchServiceApiKey}}"
-            },
-            "azure_sql": {
-                "type": "azure_sql",
-                "connection_string": "{{AzureSqlConnectionString}}",
-                "table_name": "documents",
-                "embedding_length": 1536
-            }
-        }
-    }
-
+    config = load_config_from_api("retriever_backend")
     kv = KeyVaultClient("kv-baiaia-dev")
     resolved = resolve_placeholders(config, kv)
-
     return resolved["backends"][resolved["default"]]
-
 
 def get_retriever_backend(embedding_function) -> AzureSearch:
     config = load_retriever_config()
