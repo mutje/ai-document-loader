@@ -125,6 +125,20 @@ def load_all():
         except Exception as e:
             logging.error(f"Failed to process {config.source}: {str(e)}")
 
+    # # Writing into local file (for testing purposes)
+    # logging.info("Starting Writing into local file (for testing purposes)...")
+
+    # with open("docs_preview.json", "w") as f:
+    #     json.dump([
+    #         {
+    #             "content": doc.page_content,
+    #             "metadata": doc.metadata,
+    #         }
+    #         for doc in docs
+    #     ], f, indent=2)
+    
+    # logging.info(f"Saved {len(all_docs)} documents to local json.")
+
     # LangChain indexing
     logging.info("Starting LangChain indexing...")
 
@@ -134,6 +148,7 @@ def load_all():
         retriever_backend,
         cleanup="full",
         source_id_key="source")
+    
     logging.info(f"Indexed {len(all_docs)} documents.")
     logging.info(ir)
 
